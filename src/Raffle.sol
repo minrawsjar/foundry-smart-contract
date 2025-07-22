@@ -7,8 +7,7 @@ import {VRFV2PlusClient} from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/V
 import {AutomationCompatibleInterface} from "@chainlink/contracts/src/v0.8/interfaces/AutomationCompatibleInterface.sol";
 
 /**
-
-/**
+ * /**
  * @title A sample Raffle contract
  * @author web3pavlou
  * @notice This contract is for creating a sample Raffle,not intended for production purposes
@@ -20,8 +19,7 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
     error Raffle__TransferFailed();
     error Raffle__RaffleNotOpen();
     // prettier-ignore
-    error Raffle__upkeepNotNeeded(
-        uint256 currentBalance,uint256 numPlayers,uint256 RaffleState);
+    error Raffle__upkeepNotNeeded(uint256 currentBalance, uint256 numPlayers, uint256 RaffleState);
 
     /* Type Declarations */
     enum RaffleState {
@@ -93,13 +91,11 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
      * 3.The contract has ETH
      * 4.Implicitly,your subscription is funded with LINK
      */
-    function checkUpkeep(
-        bytes memory /* checkData */
-    )
+    function checkUpkeep(bytes memory /* checkData */ )
         public
         view
         override
-        returns (bool upkeepNeeded, bytes memory /* performData */)
+        returns (bool upkeepNeeded, bytes memory /* performData */ )
     {
         bool timePassed = ((block.timestamp - s_lastTimeStamp) > i_interval);
         bool isOpen = RaffleState.OPEN == s_raffleState;
@@ -113,14 +109,10 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
      * @dev Once `checkUpkeep` returns `true`, this function gets called
      * and it kicks off a Chanlink VRF call to get a random winner.
      */
-    function performUpkeep(bytes calldata /* performData */) external override {
-        (bool upkeepNeeded, ) = checkUpkeep("");
+    function performUpkeep(bytes calldata /* performData */ ) external override {
+        (bool upkeepNeeded,) = checkUpkeep("");
         if (!upkeepNeeded) {
-            revert Raffle__upkeepNotNeeded(
-                address(this).balance,
-                s_players.length,
-                uint256(s_raffleState)
-            );
+            revert Raffle__upkeepNotNeeded(address(this).balance, s_players.length, uint256(s_raffleState));
         }
         s_raffleState = RaffleState.CALCULATING;
 
@@ -145,10 +137,10 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
      * @dev This is the function that Chainlink VRF node
      * calls to send the money to the random winner.
      */
-
     function fulfillRandomWords(
         uint256,
-        /* requestId*/ uint256[] calldata randomWords
+        /* requestId*/
+        uint256[] calldata randomWords
     ) internal override {
         uint256 indexOfWinner = randomWords[0] % s_players.length;
         address payable recentWinner = s_players[indexOfWinner];
@@ -158,7 +150,7 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
         s_lastTimeStamp = block.timestamp;
         emit WinnerPicked(recentWinner);
 
-        (bool success, ) = recentWinner.call{value: address(this).balance}("");
+        (bool success,) = recentWinner.call{value: address(this).balance}("");
         if (!success) {
             revert Raffle__TransferFailed();
         }

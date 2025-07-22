@@ -38,52 +38,34 @@ contract InteractionsTest is Test {
 
     function testCreateSubscriptionDirectCall() public {
         address account = address(1);
-        VRFCoordinatorV2_5Mock vrfCoordinator = new VRFCoordinatorV2_5Mock(
-            MOCK_BASE_FEE,
-            MOCK_GAS_PRICE_LINK,
-            MOCK_WEI_PER_UINT_LINK
-        );
+        VRFCoordinatorV2_5Mock vrfCoordinator =
+            new VRFCoordinatorV2_5Mock(MOCK_BASE_FEE, MOCK_GAS_PRICE_LINK, MOCK_WEI_PER_UINT_LINK);
 
-        (uint256 subId, address vrfCoordinatorAddress) = (
-            new CreateSubscription()
-        ).createSubscription(address(vrfCoordinator), account);
+        (uint256 subId, address vrfCoordinatorAddress) =
+            (new CreateSubscription()).createSubscription(address(vrfCoordinator), account);
 
         assertGt(subId, 0, "Subscription ID should not be zero");
-        assertEq(
-            vrfCoordinatorAddress,
-            address(vrfCoordinator),
-            "Coordinator address should match"
-        );
+        assertEq(vrfCoordinatorAddress, address(vrfCoordinator), "Coordinator address should match");
     }
 
     function testCreateSubscriptionUsingConfig() public {
         CreateSubscription createSub = new CreateSubscription();
-        (uint256 subId, address vrfCoordinatorAddress) = createSub
-            .createSubscriptionUsingConfig();
+        (uint256 subId, address vrfCoordinatorAddress) = createSub.createSubscriptionUsingConfig();
 
         assertGt(subId, 0, "SubId should not be zero (using config)");
-        assertTrue(
-            vrfCoordinatorAddress != address(0),
-            "Coordinator address should not be zero"
-        );
+        assertTrue(vrfCoordinatorAddress != address(0), "Coordinator address should not be zero");
     }
 
     function testCreateSubscriptionWithRun() public {
         CreateSubscription createSub = new CreateSubscription();
         (uint256 subId, address vrfCoordinatorAddress) = createSub.run();
         assertGt(subId, 0, "run() should produce nonzero subId");
-        assertTrue(
-            vrfCoordinatorAddress != address(0),
-            "run() should produce valid coordinator address"
-        );
+        assertTrue(vrfCoordinatorAddress != address(0), "run() should produce valid coordinator address");
     }
 
     function testAddConsumer() public {
-        VRFCoordinatorV2_5Mock vrfCoordinator = new VRFCoordinatorV2_5Mock(
-            MOCK_BASE_FEE,
-            MOCK_GAS_PRICE_LINK,
-            MOCK_WEI_PER_UINT_LINK
-        );
+        VRFCoordinatorV2_5Mock vrfCoordinator =
+            new VRFCoordinatorV2_5Mock(MOCK_BASE_FEE, MOCK_GAS_PRICE_LINK, MOCK_WEI_PER_UINT_LINK);
 
         uint256 subId = vrfCoordinator.createSubscription();
         address consumer = address(0x1234);
@@ -91,20 +73,12 @@ contract InteractionsTest is Test {
         vm.deal(owner, 10 ether);
 
         AddConsumer addConsumerScript = new AddConsumer();
-        addConsumerScript.addConsumer(
-            consumer,
-            address(vrfCoordinator),
-            subId,
-            owner
-        );
+        addConsumerScript.addConsumer(consumer, address(vrfCoordinator), subId, owner);
     }
 
     function testFundSubscriptionDirectCall() public {
-        VRFCoordinatorV2_5Mock vrfCoordinator = new VRFCoordinatorV2_5Mock(
-            MOCK_BASE_FEE,
-            MOCK_GAS_PRICE_LINK,
-            MOCK_WEI_PER_UINT_LINK
-        );
+        VRFCoordinatorV2_5Mock vrfCoordinator =
+            new VRFCoordinatorV2_5Mock(MOCK_BASE_FEE, MOCK_GAS_PRICE_LINK, MOCK_WEI_PER_UINT_LINK);
         LinkToken linkToken = new LinkToken();
         address owner = address(this);
         vm.deal(owner, 10 ether);
@@ -114,36 +88,21 @@ contract InteractionsTest is Test {
 
         FundSubscription fundSubscriptionInstance = new FundSubscription();
 
-        (uint96 balanceBefore, , , , ) = vrfCoordinator.getSubscription(subId);
+        (uint96 balanceBefore,,,,) = vrfCoordinator.getSubscription(subId);
         assertEq(balanceBefore, 0, "Balance should be zero before funding");
 
-        fundSubscriptionInstance.fundSubscription(
-            address(vrfCoordinator),
-            subId,
-            address(linkToken),
-            owner
-        );
+        fundSubscriptionInstance.fundSubscription(address(vrfCoordinator), subId, address(linkToken), owner);
 
-        (uint96 balanceAfter, , , , ) = vrfCoordinator.getSubscription(subId);
-        assertEq(
-            balanceAfter,
-            fundSubscriptionInstance.FUND_AMOUNT(),
-            "Balance should equal FUND_AMOUNT after funding"
-        );
+        (uint96 balanceAfter,,,,) = vrfCoordinator.getSubscription(subId);
+        assertEq(balanceAfter, fundSubscriptionInstance.FUND_AMOUNT(), "Balance should equal FUND_AMOUNT after funding");
 
         assertGt(subId, 0, "SubId should not be zero");
-        assertTrue(
-            address(vrfCoordinator) != address(0),
-            "Coordinator address should not be zero"
-        );
+        assertTrue(address(vrfCoordinator) != address(0), "Coordinator address should not be zero");
     }
 
     function testFundSubscriptionUsingConfig() public {
-        VRFCoordinatorV2_5Mock vrfCoordinator = new VRFCoordinatorV2_5Mock(
-            MOCK_BASE_FEE,
-            MOCK_GAS_PRICE_LINK,
-            MOCK_WEI_PER_UINT_LINK
-        );
+        VRFCoordinatorV2_5Mock vrfCoordinator =
+            new VRFCoordinatorV2_5Mock(MOCK_BASE_FEE, MOCK_GAS_PRICE_LINK, MOCK_WEI_PER_UINT_LINK);
         LinkToken linkToken = new LinkToken();
         address owner = address(this);
         vm.deal(owner, 10 ether);
