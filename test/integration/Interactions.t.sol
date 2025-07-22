@@ -46,10 +46,7 @@ contract InteractionsTest is CodeConstants, Test {
 
     function testCreateSubscription() public {
         CreateSubscription createSub = new CreateSubscription();
-        (uint256 subId, address coordinator) = createSub.createSubscription(
-            vrfCoordinator,
-            account
-        );
+        (uint256 subId, address coordinator) = createSub.createSubscription(vrfCoordinator, account);
 
         assertEq(coordinator, vrfCoordinator);
         assertGt(subId, 0, "Subscription ID should be greater than zero");
@@ -58,22 +55,14 @@ contract InteractionsTest is CodeConstants, Test {
     function testFundSubscription() public {
         // Create new subscription first
         CreateSubscription createSub = new CreateSubscription();
-        (uint256 subId, ) = createSub.createSubscription(
-            vrfCoordinator,
-            account
-        );
+        (uint256 subId,) = createSub.createSubscription(vrfCoordinator, account);
 
         FundSubscription fundSub = new FundSubscription();
         fundSub.fundSubscription(vrfCoordinator, subId, link, account);
 
         if (block.chainid == LOCAL_CHAIN_ID) {
-            uint96 balance = VRFCoordinatorV2_5Mock(vrfCoordinator)
-                .getSubscriptionBalance(subId);
-            assertEq(
-                balance,
-                uint96(FUND_AMOUNT * 100),
-                "Mock subscription balance mismatch"
-            );
+            uint96 balance = VRFCoordinatorV2_5Mock(vrfCoordinator).getSubscriptionBalance(subId);
+            assertEq(balance, uint96(FUND_AMOUNT * 100), "Mock subscription balance mismatch");
         } else {
             assertTrue(true);
         }
@@ -82,10 +71,7 @@ contract InteractionsTest is CodeConstants, Test {
     function testAddConsumer() public {
         // 1. Create subscription
         CreateSubscription createSub = new CreateSubscription();
-        (uint256 subId, ) = createSub.createSubscription(
-            vrfCoordinator,
-            account
-        );
+        (uint256 subId,) = createSub.createSubscription(vrfCoordinator, account);
 
         // 2. Fund subscription
         FundSubscription fundSub = new FundSubscription();
@@ -93,25 +79,16 @@ contract InteractionsTest is CodeConstants, Test {
 
         // 3. Add raffle as a consumer
         AddConsumer addConsumerScript = new AddConsumer();
-        addConsumerScript.addConsumer(
-            address(raffle),
-            vrfCoordinator,
-            subId,
-            account
-        );
+        addConsumerScript.addConsumer(address(raffle), vrfCoordinator, subId, account);
 
         // 4. Assert that the raffle contract is now a consumer
-        bool isAdded = VRFCoordinatorV2_5Mock(vrfCoordinator).consumerIsAdded(
-            subId,
-            address(raffle)
-        );
+        bool isAdded = VRFCoordinatorV2_5Mock(vrfCoordinator).consumerIsAdded(subId, address(raffle));
         assertTrue(isAdded, "Raffle contract was not added as a VRF consumer");
     }
 
     function testCreateSubscriptionUsingConfig() public {
         CreateSubscription createSub = new CreateSubscription();
-        (uint256 subId, address coordinator) = createSub
-            .createSubscriptionUsingConfig();
+        (uint256 subId, address coordinator) = createSub.createSubscriptionUsingConfig();
 
         // You want to assert that the subId is non-zero and
         // that the coordinator matches what your HelperConfig returns
